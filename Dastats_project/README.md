@@ -1,1 +1,158 @@
+# 📊 Dastats - Сервис аналитики отзывов
 
+[![React](https://img.shields.io/badge/React-18.2.0-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://reactjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-24.0-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com/)
+[![GigaChat](https://img.shields.io/badge/GigaChat-AI-FF6B35?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K&logoColor=white)](https://developers.sber.ru/portal/products/gigachat)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org/)
+
+![Demo](https://img.shields.io/badge/Live_Demo-Available-success?style=for-the-badge)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+
+## 🚀 О проекте
+
+**Dastats** — современный веб-сервис для анализа отзывов клиентов банковских продуктов. Платформа предоставляет интуитивно понятный дашборд с мощными возможностями визуализации и AI-анализа тональности отзывов.
+
+### ✨ Ключевые возможности
+
+- 📈 **Интерактивная аналитика** — визуализация данных по 25,000+ отзывов
+- 🎯 **Категоризация продуктов** — анализ по 12 банковским категориям  
+- 🧠 **AI-анализ тональности** — автоматическая классификация настроений
+- ⚡ **Реальное время** — мгновенная обработка новых отзывов
+- 📊 **Гибкая фильтрация** — настройка временных диапазонов и категорий
+
+### 🎯 Источники данных
+
+- [**banki.ru**](https://www.banki.ru) — ведущий финансовый портал России
+- [**sravni.ru**](https://www.sravni.ru) — сервис сравнения банковских продуктов
+- Просматривать динамику отзывов по 12 категориям продуктов:
+  - Дебетовые карты
+  - Кредитные карты
+  - Ипотека
+  - Автокредиты
+  - Реструктуризация
+  - Кредиты
+  - Депозиты
+  - Переводы
+  - Мобильное приложение
+  - Индивидуальное обслуживание
+  - Удаленное обслуживание
+  - Другое
+- Для каждой категории отображается **тональность отзывов**: позитивная, нейтральная, негативная.
+- Доступ к LLM для классификации новых отзывов.
+
+Фронтенд написан на **React**, бэкенд на **Python (FastAPI)**, база данных — **PostgreSQL с использованием SQLAlchemy + asyncpg**. В систему загружено **25 000 исторических отзывов**, предварительно спаршенных с источников.
+
+Ссылка на дашборд: https://forthang.github.io/misis-lct_sat/
+
+Endpoint для predict доступен по https://lct.misis-team.ru:8000/api/predict
+
+---
+
+## ⚙️ Архитектура
+
+```mermaid
+graph LR
+    subgraph Источники
+        A1[banki.ru]:::source
+        A2[sravni.ru]:::source
+    end
+
+    subgraph Инфраструктура
+        B[(PostgreSQL)]:::db
+        C[FastAPI Backend]:::backend
+        D[React Dashboard]:::frontend
+    end
+
+    subgraph AI Агент
+        E[LangChain + LangGraph]:::ai
+        F[GigaChat API]:::model
+    end
+
+    A1 -->|Парсер| B
+    A2 -->|Парсер| B
+
+    B --> C
+    C --> D
+    C --> E
+    E --> F
+    F --> E
+    E --> C
+    D -->|Визуализация| G[Пользователь]
+
+    classDef source fill:#cce5ff,stroke:#0056b3,stroke-width:1px;
+    classDef db fill:#e2ffe2,stroke:#339933,stroke-width:1px;
+    classDef backend fill:#fff3cd,stroke:#b38f00,stroke-width:1px;
+    classDef frontend fill:#f8d7da,stroke:#b30000,stroke-width:1px;
+    classDef ai fill:#d1c4e9,stroke:#4a148c,stroke-width:1px;
+    classDef model fill:#ede7f6,stroke:#311b92,stroke-width:1px;
+```
+
+---
+
+## 🧠 Используемые методы
+
+- **Классификация категорий отзывов**: AI-агент на базе **LangChain + LangGraph**, модель **GigaChat** от Сбера.
+- **Классификация тональностей**: тот же агент с отдельным промптом.
+- **Метрики качества**:
+  - *F1-micro* для классификации категорий.
+  - *Accuracy* для классификации тональностей.
+
+---
+
+## 📑 Интерфейс сервиса
+На странице дашборда доступно:
+- Фильтрация по категориям продуктов.
+- Настройка временного диапазона (всё время, месяц, полгода, год, произвольные даты).
+- График статистики по количеству отзывов.
+- Диаграмма тональностей для выбранных категорий.
+
+---
+
+## 📦 Запуск проекта
+
+### Требования
+- Установленный **Docker** и **Docker Compose**
+- Для успешного запуска нужно получить ключ доступа от GigaChat и поместить его в .env
+
+### Команды запуска
+```bash
+git clone <репозиторий>
+cd <директория проекта>
+docker compose up
+```
+
+Веб-сервис будет запущен по адресу 
+```
+http://localhost:5173
+```
+
+API endpointa для predict лежит на 
+```
+http://localhost:5173/api/predict
+```
+
+---
+
+## 📂 Исторические данные
+- Собрано и сохранено **25 000 отзывов**.
+- Парсинг выполнялся с помощью кастомного скрипта на Python (requests + json + html очистка).
+- Данные хранятся в PostgreSQL и обновляются при добавлении новых отзывов.
+
+---
+
+## ✅ Стек технологий
+- **Backend**: Python, FastAPI, LangChain, LangGraph
+- **Frontend**: React
+- **Design**: Figma
+- **Database**: PostgreSQL (SQLAlchemy + asyncpg)
+- **ML/LLM**: GigaChat API от Сбера
+- **Инфраструктура**: Docker, Docker Compose
+
+---
+
+## 🚀 Возможные улучшения
+- Добавить автоматическую выгрузку новых отзывов по расписанию.
+- Расширить метрики качества (Precision, Recall).
+- Внедрить user-friendly экспорт отчётов в Excel/PDF.
